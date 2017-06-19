@@ -3,9 +3,7 @@ from __future__ import unicode_literals
 from django.views import View
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from django.contrib.auth import authenticate
-from django.contrib.auth import login
-from django.contrib.auth import logout
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from .forms import *
@@ -17,12 +15,14 @@ class LoginView(View):
 	form = LoginForm
 
 	def get(self, request):
+		if request.user.is_authenticated():
+			return HttpResponseRedirect(reverse("worker:home"))
+
 		form = self.form()
 		return render(request,self.template_name,{"form":form})
 
 	def post(self, request):
 		form = self.form(request.POST)
-		import pdb;pdb.set_trace()
 		if form.is_valid():
 			data = form.cleaned_data
 			username = data["username"]
@@ -41,6 +41,9 @@ class SignupView(View):
 	template_name = 'signup.html'
 	
 	def get(self, request):
+		if request.user.is_authenticated():
+			return HttpResponseRedirect(reverse("worker:home"))
+
 		form = self.form()
 		return render(request,self.template_name,{"form":form})
 
@@ -51,8 +54,13 @@ class SignupView(View):
 			username = data["username"]
 			email = data["email"]
 			password = data["password"]
+			confirm_password = data["confirm_password"]
 			first_name = data["first_name"]
 			last_name = data["last_name"]
+
+			import pdb;pdb.set_trace()
+			if password!=confirm_password:
+				return render(request,self.template_name,{"form":self.form()})
 
 			user = User(first_name=first_name,last_name=last_name,email=email,username=username)
 			user.set_password(password)
@@ -67,3 +75,8 @@ class SignupView(View):
 					return HttpResponseRedirect(reverse('worker:home'))			
 
 		return render(request,self.template_name,{"form":self.form()})
+
+class LogoutView(View):
+	def get(self,request):
+		logout(request)
+		return HttpResponseRedirect(reverse("authentication:login"))
