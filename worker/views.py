@@ -4,7 +4,7 @@ from django.views import View
 from django.shortcuts import render
 
 # Create your views here.
-class LoginView(View):
+class HomeView(View):
 	template_name = 'home.html'
 
 	def get(self, request):
