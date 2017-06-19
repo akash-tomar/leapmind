@@ -33,7 +33,7 @@ class LoginView(View):
 					login(request,user)
 					return HttpResponseRedirect(reverse('worker:home'))
 
-		return render(request,self.template_name,{"form":self.form()})
+		return render(request,self.template_name,{"form":self.form(),"failed":"Wrong username or password"})
 
 
 class SignupView(View):
@@ -49,6 +49,7 @@ class SignupView(View):
 
 	def post(self, request):
 		form = self.form(request.POST)
+		# import pdb; pdb.set_trace()
 		if form.is_valid():
 			data = form.cleaned_data
 			username = data["username"]
@@ -58,9 +59,8 @@ class SignupView(View):
 			first_name = data["first_name"]
 			last_name = data["last_name"]
 
-			import pdb;pdb.set_trace()
 			if password!=confirm_password:
-				return render(request,self.template_name,{"form":self.form()})
+				return render(request,self.template_name,{"form":self.form(),"failed":"Passwords don't match"})
 
 			user = User(first_name=first_name,last_name=last_name,email=email,username=username)
 			user.set_password(password)
@@ -73,8 +73,11 @@ class SignupView(View):
 				if auth.is_active:
 					login(request,auth)
 					return HttpResponseRedirect(reverse('worker:home'))			
-
-		return render(request,self.template_name,{"form":self.form()})
+					
+		if "email" in form.errors:
+			return render(request,self.template_name,{"form":self.form(),"failed":"This email already exists"})
+				
+		return render(request,self.template_name,{"form":self.form(),"failed":"Invalid fields for signup"})
 
 class LogoutView(View):
 	def get(self,request):

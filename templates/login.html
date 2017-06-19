@@ -6,6 +6,10 @@
 {% endblock %}
 
 {% block body %}
+
+	{% if failed %}
+		{{ failed }}
+	{% endif %}
 	
 	<form action="{% url 'authentication:login' %}" method="POST">
 	    {% csrf_token %}
