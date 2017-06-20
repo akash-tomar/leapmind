@@ -58,3 +58,16 @@ You may logout the bank portal using this action.
 #### Home of the system
 
 This is the home page of the system.
+
+
+
+
+### Future Tasks
+
+- Add feature where user can get a one time password on their Email address for logging into the system.
+
+- Send a text to the user on their mobile phone, whenever their is an unusual login to their account.
+
+- Feature of alternate Email address for password recovery.
+
+- Block the account temporarily on five failed attempts to login and notify the user via email.
