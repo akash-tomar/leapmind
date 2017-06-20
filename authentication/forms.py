@@ -27,6 +27,8 @@ class SignupForm(forms.ModelForm):
 		self.fields['password'].widget.attrs.update({'placeholder':'Password'})
 		self.fields['confirm_password'].widget.attrs.update({'placeholder':'Confirm Password'})
 
+	'''All users must have unique email therefore any user with repeated 
+	email address will not be alloweed.'''
 	def clean_email(self):
 	    data = self.cleaned_data['email']
 	    if User.objects.filter(email=data).exists():

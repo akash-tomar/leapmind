@@ -25,12 +25,25 @@ Finally, go to your local browser and point to **localhost:8000** or **127.0.0.1
 
 ## Documentation:
 
+### Register [/auth/signup/]
+
+#### Registration 
+
+This is the endpoint for the registration on the system.
+
 
 ### Login [/auth/login/]
 
 #### Login to the system
 
 You may login to the system using this action.
+
+
+### Forgot Password [/auth/email/]
+
+#### Send email link for resetting the password.
+
+This endpoint will send a recovery email for the password to be reset.
 
 
 ### Logout [/auth/logout/]
@@ -45,16 +58,3 @@ You may logout the bank portal using this action.
 #### Home of the system
 
 This is the home page of the system.
-
-
-### Register [/auth/signup/]
-
-#### Registration 
-
-This is the endpoint for the registration on the system.
-
-### Forgot Password [/auth/email/]
-
-#### Send email link for resetting the password.
-
-This endpoint will send a recovery email for the password to be reset.

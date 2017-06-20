@@ -14,16 +14,19 @@ import uuid
 from .models import *
 import datetime
 
-# Create your views here.
+#This class will handle all the login related functions.
 class LoginView(View):
 	template_name = 'login.html'
 	form = LoginForm
 
 	def get(self, request):
+		#If the user is already authenticated then redirect to home page.
 		if request.user.is_authenticated():
 			return HttpResponseRedirect(reverse("worker:home"))
 		
 		form = self.form()
+
+		#This flag will be used when the user would have successfully reset the password.
 		if "recovery" in request.GET:
 			if request.GET["recovery"]=="1":
 				return render(request,self.template_name,{"form":form,"recovery":True})
@@ -38,6 +41,7 @@ class LoginView(View):
 			user=authenticate(username=username,password=password)
 			if user is not None:
 				if user.is_active:
+					#since the user is active and authenticated login the user.
 					login(request,user)
 					return HttpResponseRedirect(reverse('worker:home'))
 
@@ -49,6 +53,7 @@ class SignupView(View):
 	template_name = 'signup.html'
 	
 	def get(self, request):
+		#If the user is already authenticated then redirect the user to the home page.
 		if request.user.is_authenticated():
 			return HttpResponseRedirect(reverse("worker:home"))
 
@@ -57,9 +62,9 @@ class SignupView(View):
 
 	def post(self, request):
 		form = self.form(request.POST)
-		# import pdb; pdb.set_trace()
 		if form.is_valid():
 			data = form.cleaned_data
+			#Retreive all the data from the form and save the user in db.
 			username = data["username"]
 			email = data["email"]
 			password = data["password"]
@@ -82,37 +87,46 @@ class SignupView(View):
 					login(request,auth)
 					return HttpResponseRedirect(reverse('worker:home'))			
 
+		#All users must have unique email therefore same email will raise error via form validation.
 		if "email" in form.errors:
 			return render(request,self.template_name,{"form":self.form(),"failed":"This email already exists"})
 				
 		return render(request,self.template_name,{"form":self.form(),"failed":"Invalid fields for signup"})
 
 class LogoutView(View):
+	#Logs out the user from the current session.
 	def get(self,request):
 		logout(request)
 		return HttpResponseRedirect(reverse("authentication:login"))
 
 class EmailView(View):
-
 	template_name = "email.html"
 
+	#This template will be used to get the email of the user to send the recovery link to.
 	def get(self,request):
 		return render(request,self.template_name,{})
 
+	#Recovery email will be generated and sent from this method.
 	def post(self,request):
 		email = request.POST["email"]
 		user = User.objects.filter(email=email)[0]
 		token = str(uuid.uuid4().get_hex())
 
+		'''If the user had previously sent mail for password reset, but never used it
+		then the token object will still be in the database which needs to be cleared.'''
+		if RecoveryToken.objects.filter(email=email).count()!=0:
+			recovery_token = RecoveryToken.objects.get(email=email)
+			recovery_token.delete()
+
+		#Now save the newly created token in the database.
 		recovery_token = RecoveryToken(email=email,token=token)
 		recovery_token.save()
 
-		message = "http://localhost:8000/auth/recovery?email="+email+"&token="+token
+		message = "Reset your password by clicking on the following link: http://localhost:8000/auth/recovery?email="+email+"&token="+token+"\n This link will expire in 30 minutes."
 		send_mail('LeapMind password recovery', message, EMAIL_HOST_USER,[email,], fail_silently=False)
 		return render(request,self.template_name,{"success":True})	
 
 class RecoveryView(View):
-	
 	template_name = "password_reset.html"
 
 	def get(self,request):
@@ -124,12 +138,15 @@ class RecoveryView(View):
 				recovery_token = RecoveryToken.objects.get(email=email)
 				timediff = datetime.datetime.now() - recovery_token.timestamp.replace(tzinfo=None)
 				timediff = timediff.seconds
+
+				#Email links sent are valid for only 30 mintues and expire after that.
 				if timediff<=1800 and (recovery_token.token == token):
 					return render(request,self.template_name,{"email":email})
 			except:
+				#This means there was no such object in the db with given email address.
 				return HttpResponseRedirect(reverse("authentication:login"))
 		return HttpResponseRedirect(reverse("authentication:login"))
-		
+
 	def post(self,request):
 		email = request.POST.get("email")
 		password = request.POST.get("password")
@@ -140,9 +157,13 @@ class RecoveryView(View):
 		recovery_token = RecoveryToken.objects.get(email=email)
 		timediff = datetime.datetime.now() - recovery_token.timestamp.replace(tzinfo=None)
 		timediff = timediff.seconds
+		
+		'''When new passwords are sent by the user, it needs to be done
+		 within the alloted time of 30 minutes.'''
 		if timediff<=1800:
 			recovery_token.delete()
 			user.set_password(password)
 			user.save()
 			return HttpResponseRedirect(reverse("authentication:login")+"?recovery=1")
+		recovery_token.delete()
 		return HttpResponseRedirect(reverse("authentication:login"))
