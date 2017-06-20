@@ -31,6 +31,13 @@ Finally, go to your local browser and point to **localhost:8000** or **127.0.0.1
 
 This is the endpoint for the registration on the system.
 
+- First Name
+- Last Name
+- Email address
+- Username
+- Password
+- Confirm Password
+
 
 ### Login [/auth/login/]
 
@@ -38,12 +45,16 @@ This is the endpoint for the registration on the system.
 
 You may login to the system using this action.
 
+- Username
+- Password
 
 ### Forgot Password [/auth/email/]
 
 #### Send email link for resetting the password.
 
 This endpoint will send a recovery email for the password to be reset.
+
+- Email address
 
 
 ### Logout [/auth/logout/]
