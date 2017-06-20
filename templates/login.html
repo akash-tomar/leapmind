@@ -7,14 +7,19 @@
 
 {% block body %}
 
+	{% if recovery %}
+		Recovery successful.
+	{% endif %}
+
 	{% if failed %}
 		{{ failed }}
 	{% endif %}
-	
+
 	<form action="{% url 'authentication:login' %}" method="POST">
 	    {% csrf_token %}
 	    {{ form }}
 	    <input type="submit" value="Submit" />
 	</form>
 	<a href="{% url 'authentication:signup' %}">Sign up</a>
+	<a href="{% url 'authentication:email' %}">Forgot Password</a>
 {% endblock %}

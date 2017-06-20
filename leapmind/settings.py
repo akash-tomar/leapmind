@@ -133,3 +133,10 @@ STATICFILES_DIRS = (
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
+
+#for sending email
+EMAIL_HOST='smtp.mail.yahoo.com'
+EMAIL_HOST_USER='akash.tomar217@yahoo.com'
+EMAIL_HOST_PASSWORD='meafter12'
+EMAIL_PORT='587'
+EMAIL_USE_TLS=True

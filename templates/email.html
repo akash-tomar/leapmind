@@ -1,0 +1,10 @@
+{% if success %}
+	Email successfully sent!
+	Please check your email for further instructions.
+{% else %}
+	<form action="{% url 'authentication:email' %}" method="POST">
+		{% csrf_token %}
+		<input type="email" name="email" placeholder="Email">
+		<input type="submit" value="submit">
+	</form>
+{% endif %}
