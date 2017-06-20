@@ -6,15 +6,15 @@
 {% endblock %}
 
 {% block body %}
-
+	<a href="{% url 'authentication:login' %}">Login</a>
+	<br><br><br>
 	{% if failed %}
 		{{ failed }}
 	{% endif %}
 
 	<form action="{% url 'authentication:signup' %}" method="POST">
 	    {% csrf_token %}
-	    {{ form }}
+	    {{ form.as_p }}
 	    <input type="submit" value="Submit" />
 	</form>
-	<a href="{% url 'authentication:login' %}">Login</a>
 {% endblock %}

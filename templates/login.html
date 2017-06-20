@@ -17,9 +17,9 @@
 
 	<form action="{% url 'authentication:login' %}" method="POST">
 	    {% csrf_token %}
-	    {{ form }}
+	    {{ form.as_p }}
 	    <input type="submit" value="Submit" />
 	</form>
-	<a href="{% url 'authentication:signup' %}">Sign up</a>
+	<a href="{% url 'authentication:signup' %}">Sign up</a> <br><br>
 	<a href="{% url 'authentication:email' %}">Forgot Password</a>
 {% endblock %}
